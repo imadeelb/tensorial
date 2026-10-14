@@ -11,8 +11,8 @@ import jax.numpy as jnp
 import jaxtyping as jt
 import jraph
 
-from . import _base, _tree
 from .. import base
+from . import _base, _tree
 
 if TYPE_CHECKING:
     from tensorial import gcnn
@@ -360,7 +360,9 @@ class SingleDerivative(Derivative):
         if self._post_reduce:
             value = base.as_array(value).sum(axis=self._post_reduce)
         if self._post_permute:
-            value = value.transpose(self._post_permute)
+            # Reductions above already produce a plain array, but without one the value can still
+            # be an IrrepsArray, which has no transpose
+            value = base.as_array(value).transpose(self._post_permute)
         self._check_shape("out", self.out, value)
 
         return value, graph
@@ -411,7 +413,7 @@ class MultiDerivative(Derivative):
 
     @property
     def graph_tuple_paths(self) -> "dict[gcnn.typing.TreePath, int]":
-        paths: "dict[gcnn.typing.TreePath, int]" = {}
+        paths: dict[gcnn.typing.TreePath, int] = {}
         wrt_map = []
         for part in self.parts:
             if not isinstance(part.wrt.key_path, int):
@@ -563,7 +565,7 @@ def diff(
     *func_of,
     wrt: GraphEntrySpecLike | Sequence[GraphEntrySpecLike],
     of: GraphEntrySpecLike | None = None,
-    out: GraphEntrySpecLike = None,
+    out: GraphEntrySpecLike | None = None,
     scale: float = 1.0,
     at: dict | None = None,
     return_graph=False,

@@ -3,6 +3,7 @@
 from . import (
     base,
     config,
+    data,
     datasets,
     gcnn,
     geometry,
@@ -14,6 +15,7 @@ from . import (
 from .base import *
 from .reaxkit import ReaxModule
 from .tensors import *
+from .utils import make_irreps
 
 __version__ = "0.6.5"
 
@@ -21,12 +23,14 @@ __all__ = (
     base.__all__
     + tensors.__all__
     + (
+        "data",
         "datasets",
         "config",
         "gcnn",
         "geometry",
         "typing",
         "ReaxModule",
+        "make_irreps",
         "utils",
     )
 )
